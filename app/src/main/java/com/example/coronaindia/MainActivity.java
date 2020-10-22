@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -35,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
     static AutoCompleteTextView inputtext;
     static AutoCompleteTextView statesName;
-    TextView information;
+    static TextView information;
+    static Button  searchButton;
 
     public static class DownloadTask extends AsyncTask<String ,Void,String>{
 
@@ -68,19 +70,19 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-            inputtext.setText("Done");
+            searchButton.setEnabled(true);
 
             try{
                 JSONObject jsonObject= new JSONObject(s);
                  info = jsonObject.getString(state);//TODO
                 Log.i(statesName.getText().toString(),info);//todo
+                information.setText(info);
 
 
-//
 //                JSONArray arr = new JSONArray(info);
 //                for(int i=0;i<arr.length();i++) {
 //                    JSONObject obj = arr.getJSONObject(i);
-//                    Log.i("Bhagalpur",obj.getString("Bhagalpur"));//todo
+//                    Log.i("Bhagalpur",obj.getString("districtData"));//todo
 //                }
 
             }catch (Exception e){
@@ -92,9 +94,9 @@ public class MainActivity extends AppCompatActivity {
 
         state = statesName.getText().toString();
         city = inputtext.getText().toString();
-        information.setText(info);
         DownloadTask task = new DownloadTask();
         task.execute("https://api.covid19india.org/state_district_wise.json");
+        searchButton.setEnabled(false);
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         inputtext.setAdapter(adapter);
         inputtext.setThreshold(1);
         information = (TextView)findViewById(R.id.information);
+        searchButton= (Button)findViewById(R.id.button);
 
 
 
