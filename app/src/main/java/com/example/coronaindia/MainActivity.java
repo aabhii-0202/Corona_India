@@ -25,7 +25,8 @@ public class MainActivity extends AppCompatActivity {
     static String[] cities ={"Katihar","Purnea","Bhagalpur","Araria"};
     static String city="Katihar";
     static String state="Bihar";
-    static String info;
+    static String info,info2,info3;
+    static String active,confirmed,deceased,recovered;
 
 
     static String[] states ={"Andaman and Nicobar Islands","Andhra Pradesh","Arunachal Pradesh","Assam", "Bihar",
@@ -74,16 +75,32 @@ public class MainActivity extends AppCompatActivity {
 
             try{
                 JSONObject jsonObject= new JSONObject(s);
-                 info = jsonObject.getString(state);//TODO
-                Log.i(statesName.getText().toString(),info);//todo
-                information.setText(info);
+                 info = jsonObject.getString(state);
+//                Log.i(statesName.getText().toString(),info);
+//                information.setText(info);
+
+                JSONObject newJsonObj = new JSONObject(info);
+                info2 = newJsonObj.getString("districtData");
+//                information.setText(info2);
+
+                JSONObject cityoutput = new JSONObject(info2);
+                info3 = cityoutput.getString(city);
+//                information.setText(info3);
+
+                JSONObject finalout = new JSONObject(info3);
+                active = finalout.getString("active");
+                confirmed = finalout.getString("confirmed");
+                deceased = finalout.getString("deceased");
+                recovered = finalout.getString("recovered");
 
 
-//                JSONArray arr = new JSONArray(info);
-//                for(int i=0;i<arr.length();i++) {
-//                    JSONObject obj = arr.getJSONObject(i);
-//                    Log.i("Bhagalpur",obj.getString("districtData"));//todo
-//                }
+                information.setText(state+":"+city+"\nActive : "+active+"\nConfirmed : "+confirmed+"\nDeceased : "+deceased+"\nRecovered :"+recovered);
+
+
+
+
+
+
 
             }catch (Exception e){
                 e.printStackTrace();
