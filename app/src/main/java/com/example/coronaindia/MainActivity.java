@@ -2,6 +2,7 @@ package com.example.coronaindia;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -19,10 +21,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    static String[] cities ={"Katihar","Purnea","Bhagalpur","Araria"};
+    static String[] cities ={"Araria","Arwal","Aurangabad","Banka","Begusarai", "Bhagalpur","Bhojpur","Buxar","Darbhanga","East Champaran",
+            "Gaya","Gopalganj", "Jamui", "Jehanabad","Kaimur","Katihar","Khagaria","Kishanganj","Lakhisarai", "Madhepura",
+            "Madhubani","Munger", "Muzaffarpur","Nalanda","Nawada","Patna","Purnia","Rohtas","Saharsa","Samastipur","Saran",
+            "Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran"};
     static String city="Katihar";
     static String state="Bihar";
     static String info,info2,info3;
@@ -38,9 +44,11 @@ public class MainActivity extends AppCompatActivity {
     static AutoCompleteTextView inputtext;
     static AutoCompleteTextView statesName;
     static TextView information;
-    static Button  searchButton;
+//    static Button  searchButton;
 
-    public static class DownloadTask extends AsyncTask<String ,Void,String>{
+    static SharedPreferences rawdata;
+
+    public class DownloadTask extends AsyncTask<String ,Void,String>{
 
         @Override
         protected String doInBackground(String... urls) {
@@ -71,50 +79,59 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-            searchButton.setEnabled(true);
+            storeData(s);
+//            searchButton.setEnabled(true);
+            Log.i("Information","The downloading process is done");
 
-            try{
-                JSONObject jsonObject= new JSONObject(s);
-                 info = jsonObject.getString(state);
-//                Log.i(statesName.getText().toString(),info);
-//                information.setText(info);
-
-                JSONObject newJsonObj = new JSONObject(info);
-                info2 = newJsonObj.getString("districtData");
-//                information.setText(info2);
-
-                JSONObject cityoutput = new JSONObject(info2);
-                info3 = cityoutput.getString(city);
-//                information.setText(info3);
-
-                JSONObject finalout = new JSONObject(info3);
-                active = finalout.getString("active");
-                confirmed = finalout.getString("confirmed");
-                deceased = finalout.getString("deceased");
-                recovered = finalout.getString("recovered");
-
-
-                information.setText(state+":"+city+"\nActive : "+active+"\nConfirmed : "+confirmed+"\nDeceased : "+deceased+"\nRecovered :"+recovered);
-
-
-
-
-
-
-
-            }catch (Exception e){
-                e.printStackTrace();
-            }
         }
+    }
+
+    public void morningCall(){
+        DownloadTask task = new DownloadTask();
+        task.execute("https://api.covid19india.org/state_district_wise.json");
+    }
+
+    public static void getDetails() throws JSONException {
+
+        JSONObject jsonObject= new JSONObject(rawdata.getString("morningData",""));
+        info = jsonObject.getString(state);
+        JSONObject newJsonObj = new JSONObject(info);
+        info2 = newJsonObj.getString("districtData");
+        JSONObject cityoutput = new JSONObject(info2);
+        info3 = cityoutput.getString(city);
+        JSONObject finalout = new JSONObject(info3);
+        active = finalout.getString("active");
+        confirmed = finalout.getString("confirmed");
+        deceased = finalout.getString("deceased");
+        recovered = finalout.getString("recovered");
+        information.setText(state+":"+city+"\nActive : "+active+"\nConfirmed : "+confirmed+"\nDeceased : "+deceased+"\nRecovered :"+recovered);
+//        searchButton.setEnabled(true);
+
     }
     public void onButtonClick(View view){
 
         state = statesName.getText().toString();
         city = inputtext.getText().toString();
-        DownloadTask task = new DownloadTask();
-        task.execute("https://api.covid19india.org/state_district_wise.json");
-        searchButton.setEnabled(false);
+
+        try{
+            getDetails();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
+
+
+
+
+    public void storeData(String morningdata){
+        rawdata.edit().clear().apply();
+        rawdata.edit().putString("morningData",morningdata).apply();
+    }
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,8 +146,9 @@ public class MainActivity extends AppCompatActivity {
         inputtext.setAdapter(adapter);
         inputtext.setThreshold(1);
         information = (TextView)findViewById(R.id.information);
-        searchButton= (Button)findViewById(R.id.button);
-
+//        searchButton= (Button)findViewById(R.id.button);
+        rawdata= getApplicationContext().getSharedPreferences("com.example.coronaindia",MODE_PRIVATE);
+        morningCall();
 
 
 
