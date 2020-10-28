@@ -36,10 +36,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     static String[] states ={"Andaman and Nicobar Islands","Andhra Pradesh","Arunachal Pradesh","Assam", "Bihar",
-            "Chandigarh","Chhattisgarh","Delhi","Dadra and Nagar Haveli and Daman and Diu", "Goa","Gujarat","Haryana", "Himachal Pradesh","Jammu and Kashmir ",
-            "Jharkhand", "Karnataka", "Kerala","Ladakh", "Lakshadweep", "Madhya Pradesh", "Maharashtra",
-            "Manipur", "Meghalaya", "Mizoram", "Nagaland","Odisha","Puducherry","Punjab","Rajasthan",
-            "Sikkim","Tamil Nadu","Telangana","Tripura", "Uttar Pradesh","Uttarakhand", "Dehradun","West Bengal"};
+            "Chandigarh","Chhattisgarh","Delhi","Dadra and Nagar Haveli and Daman and Diu", "Goa","Gujarat","Haryana",
+            "Himachal Pradesh","Jammu and Kashmir ", "Jharkhand", "Karnataka", "Kerala","Ladakh", "Lakshadweep",
+            "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland","Odisha","Puducherry","Punjab",
+            "Rajasthan", "Sikkim","Tamil Nadu","Telangana","Tripura", "Uttar Pradesh","Uttarakhand", "Dehradun","West Bengal"};
 
     static AutoCompleteTextView inputtext;
     static AutoCompleteTextView statesName;
@@ -149,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
 //        searchButton= (Button)findViewById(R.id.button);
         rawdata= getApplicationContext().getSharedPreferences("com.example.coronaindia",MODE_PRIVATE);
         morningCall();
+
 
 
 
