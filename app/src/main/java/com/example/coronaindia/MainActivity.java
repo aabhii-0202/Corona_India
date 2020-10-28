@@ -30,27 +30,23 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
-    static String[] cities ={"Araria","Arwal","Aurangabad","Banka","Begusarai", "Bhagalpur","Bhojpur","Buxar","Darbhanga","East Champaran",
-            "Gaya","Gopalganj", "Jamui", "Jehanabad","Kaimur","Katihar","Khagaria","Kishanganj","Lakhisarai", "Madhepura",
-            "Madhubani","Munger", "Muzaffarpur","Nalanda","Nawada","Patna","Purnia","Rohtas","Saharsa","Samastipur","Saran",
-            "Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran"};
-    static String city;
-    static String state;
-    static String info,info2,info3;
-    static String active,confirmed,deceased,recovered;
-    public int timeinhrs =10;
-
-
-
     static String[] states ={"Andaman and Nicobar Islands","Andhra Pradesh","Arunachal Pradesh","Assam", "Bihar",
             "Chandigarh","Chhattisgarh","Delhi","Dadra and Nagar Haveli and Daman and Diu", "Goa","Gujarat","Haryana",
             "Himachal Pradesh","Jammu and Kashmir ", "Jharkhand", "Karnataka", "Kerala","Ladakh", "Lakshadweep",
             "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland","Odisha","Puducherry","Punjab",
-            "Rajasthan", "Sikkim","Tamil Nadu","Telangana","Tripura", "Uttar Pradesh","Uttarakhand", "Dehradun","West Bengal"
-
-            ,"Belagavi","Bengaluru Rural","Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi",
-            "Shahdara","South Delhi","South East Delhi","South West Delhi","West Delhi","North Goa","South Goa","Other State"
-    };
+            "Rajasthan", "Sikkim","Tamil Nadu","Telangana","Tripura", "Uttar Pradesh","Uttarakhand", "Dehradun","West Bengal"};
+    
+    static String[] cities ={"Araria","Arwal","Aurangabad","Banka","Begusarai", "Bhagalpur","Bhojpur","Buxar","Darbhanga",
+            "Gaya","Gopalganj", "Jamui", "Jehanabad","Kaimur","Katihar","Khagaria","Kishanganj","Lakhisarai", "Madhepura",
+            "Madhubani","Munger", "Muzaffarpur","Nalanda","Nawada","Patna","Purnia","Rohtas","Saharsa","Samastipur","Saran",
+            "Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran","Belagavi","Bengaluru Rural",
+            "Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi", "Shahdara",
+            "South Delhi","South East Delhi","South West Delhi","West Delhi","North Goa","South Goa","Other State","East Champaran"};
+    static String city;
+    static String state;
+    static String info,info2,info3;
+    static String active,confirmed,deceased,recovered;
+    public int timeinhrs =20;
 
     static AutoCompleteTextView inputtext;
     static AutoCompleteTextView statesName;
