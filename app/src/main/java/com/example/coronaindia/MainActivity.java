@@ -2,6 +2,11 @@ package com.example.coronaindia;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.job.JobInfo;
+import android.app.job.JobParameters;
+import android.app.job.JobScheduler;
+import android.app.job.JobService;
+import android.content.ComponentName;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     static String state="Bihar";
     static String info,info2,info3;
     static String active,confirmed,deceased,recovered;
+    public int time =1000*60*15;
 
 
     static String[] states ={"Andaman and Nicobar Islands","Andhra Pradesh","Arunachal Pradesh","Assam", "Bihar",
@@ -44,11 +50,71 @@ public class MainActivity extends AppCompatActivity {
     static AutoCompleteTextView inputtext;
     static AutoCompleteTextView statesName;
     static TextView information;
-//    static Button  searchButton;
-
     static SharedPreferences rawdata;
 
-    public class DownloadTask extends AsyncTask<String ,Void,String>{
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        statesName = (AutoCompleteTextView)findViewById(R.id.stateName);
+        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,states);
+        statesName.setAdapter(adapter2);
+        statesName.setThreshold(1);
+        inputtext =(AutoCompleteTextView)findViewById(R.id.autoCompleteTextView);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,cities);
+        inputtext.setAdapter(adapter);
+        inputtext.setThreshold(1);
+        information = (TextView)findViewById(R.id.information);
+        rawdata= getApplicationContext().getSharedPreferences("com.example.coronaindia",MODE_PRIVATE);
+        schedulejob();
+
+    }
+
+    public void schedulejob(){
+        ComponentName componentName = new ComponentName(this,goodmorningupdatedata.class);
+        JobInfo info = new JobInfo.Builder(123,componentName)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPersisted(true)
+                .setPeriodic(time).build();
+
+        JobScheduler scheduler =(JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
+        scheduler.schedule(info);
+        int resultCode =scheduler.schedule(info);
+        if (resultCode==JobScheduler.RESULT_SUCCESS){
+            Log.i("ALERT","Job Scheduled");
+        }else{
+            Log.i("ALERT","Job Scheduling Failed");
+        }
+    }
+
+
+    public static class goodmorningupdatedata extends JobService {
+
+        public boolean jobCanceled = false;
+
+
+        @Override
+        public boolean onStartJob(JobParameters params) {
+            Log.i("ALERT","Job Started");
+            morningCall();
+            return false;
+        }
+
+        @Override
+        public boolean onStopJob(JobParameters params) {
+            Log.i("ALERT","Job Cancelled before completition");
+            jobCanceled = true;
+            return true;
+        }
+    }
+    public static void morningCall(){
+        Log.i("ALERT","Downloading Started");
+        DownloadTask task = new DownloadTask();
+        task.execute("https://api.covid19india.org/state_district_wise.json");
+    }
+    public static class DownloadTask extends AsyncTask<String ,Void,String>{
 
         @Override
         protected String doInBackground(String... urls) {
@@ -80,15 +146,25 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(s);
 
             storeData(s);
-//            searchButton.setEnabled(true);
             Log.i("Information","The downloading process is done");
 
         }
     }
+    public static void storeData(String morningdata){
+        rawdata.edit().clear().apply();
+        rawdata.edit().putString("morningData",morningdata).apply();
+    }
+    public void onButtonClick(View view){
 
-    public void morningCall(){
-        DownloadTask task = new DownloadTask();
-        task.execute("https://api.covid19india.org/state_district_wise.json");
+        state = statesName.getText().toString();
+        city = inputtext.getText().toString();
+
+        try{
+            getDetails();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     public static void getDetails() throws JSONException {
@@ -105,53 +181,6 @@ public class MainActivity extends AppCompatActivity {
         deceased = finalout.getString("deceased");
         recovered = finalout.getString("recovered");
         information.setText(state+":"+city+"\nActive : "+active+"\nConfirmed : "+confirmed+"\nDeceased : "+deceased+"\nRecovered :"+recovered);
-//        searchButton.setEnabled(true);
-
-    }
-    public void onButtonClick(View view){
-
-        state = statesName.getText().toString();
-        city = inputtext.getText().toString();
-
-        try{
-            getDetails();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
-
-
-
-
-    public void storeData(String morningdata){
-        rawdata.edit().clear().apply();
-        rawdata.edit().putString("morningData",morningdata).apply();
-    }
-
-
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        statesName = (AutoCompleteTextView)findViewById(R.id.stateName);
-        ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,states);
-        statesName.setAdapter(adapter2);
-        statesName.setThreshold(1);
-        inputtext =(AutoCompleteTextView)findViewById(R.id.autoCompleteTextView);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,cities);
-        inputtext.setAdapter(adapter);
-        inputtext.setThreshold(1);
-        information = (TextView)findViewById(R.id.information);
-//        searchButton= (Button)findViewById(R.id.button);
-        rawdata= getApplicationContext().getSharedPreferences("com.example.coronaindia",MODE_PRIVATE);
-        morningCall();
-
-
-
 
     }
 }
