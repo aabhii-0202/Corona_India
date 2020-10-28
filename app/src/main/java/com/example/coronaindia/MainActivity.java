@@ -34,18 +34,23 @@ public class MainActivity extends AppCompatActivity {
             "Gaya","Gopalganj", "Jamui", "Jehanabad","Kaimur","Katihar","Khagaria","Kishanganj","Lakhisarai", "Madhepura",
             "Madhubani","Munger", "Muzaffarpur","Nalanda","Nawada","Patna","Purnia","Rohtas","Saharsa","Samastipur","Saran",
             "Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran"};
-    static String city="Katihar";
-    static String state="Bihar";
+    static String city;
+    static String state;
     static String info,info2,info3;
     static String active,confirmed,deceased,recovered;
-    public int time =1000*60*15;
+    public int timeinhrs =10;
+
 
 
     static String[] states ={"Andaman and Nicobar Islands","Andhra Pradesh","Arunachal Pradesh","Assam", "Bihar",
             "Chandigarh","Chhattisgarh","Delhi","Dadra and Nagar Haveli and Daman and Diu", "Goa","Gujarat","Haryana",
             "Himachal Pradesh","Jammu and Kashmir ", "Jharkhand", "Karnataka", "Kerala","Ladakh", "Lakshadweep",
             "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland","Odisha","Puducherry","Punjab",
-            "Rajasthan", "Sikkim","Tamil Nadu","Telangana","Tripura", "Uttar Pradesh","Uttarakhand", "Dehradun","West Bengal"};
+            "Rajasthan", "Sikkim","Tamil Nadu","Telangana","Tripura", "Uttar Pradesh","Uttarakhand", "Dehradun","West Bengal"
+
+            ,"Belagavi","Bengaluru Rural","Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi",
+            "Shahdara","South Delhi","South East Delhi","South West Delhi","West Delhi","North Goa","South Goa","Other State"
+    };
 
     static AutoCompleteTextView inputtext;
     static AutoCompleteTextView statesName;
@@ -77,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         JobInfo info = new JobInfo.Builder(123,componentName)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPersisted(true)
-                .setPeriodic(time).build();
+                .setPeriodic(timeinhrs*1000*3600).build();
 
         JobScheduler scheduler =(JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
         scheduler.schedule(info);
@@ -161,7 +166,10 @@ public class MainActivity extends AppCompatActivity {
 
         try{
             getDetails();
-        }catch (Exception e){
+        }catch(JSONException a){
+            information.setText("\n\nUpdating Data\nTry after 5 minutes");
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
 
