@@ -3,43 +3,21 @@ package com.example.coronaindia;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.job.JobInfo;
-import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
-import android.app.job.JobService;
 import android.content.ComponentName;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.TextView;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+
 
 public class MainActivity extends AppCompatActivity {
-
-    static String[] cities ={"Araria","Arwal","Aurangabad","Banka","Begusarai", "Bhagalpur","Bhojpur","Buxar","Darbhanga","East Champaran",
-            "Gaya","Gopalganj", "Jamui", "Jehanabad","Kaimur","Katihar","Khagaria","Kishanganj","Lakhisarai", "Madhepura",
-            "Madhubani","Munger", "Muzaffarpur","Nalanda","Nawada","Patna","Purnia","Rohtas","Saharsa","Samastipur","Saran",
-            "Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran"};
-    static String city="Katihar";
-    static String state="Bihar";
-    static String info,info2,info3;
-    static String active,confirmed,deceased,recovered;
-    public int time =1000*60*15;
-
 
     static String[] states ={"Andaman and Nicobar Islands","Andhra Pradesh","Arunachal Pradesh","Assam", "Bihar",
             "Chandigarh","Chhattisgarh","Delhi","Dadra and Nagar Haveli and Daman and Diu", "Goa","Gujarat","Haryana",
@@ -47,10 +25,23 @@ public class MainActivity extends AppCompatActivity {
             "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland","Odisha","Puducherry","Punjab",
             "Rajasthan", "Sikkim","Tamil Nadu","Telangana","Tripura", "Uttar Pradesh","Uttarakhand", "Dehradun","West Bengal"};
 
+    static String[] cities ={"Araria","Arwal","Aurangabad","Banka","Begusarai", "Bhagalpur","Bhojpur","Buxar","Darbhanga",
+            "Gaya","Gopalganj", "Jamui", "Jehanabad","Kaimur","Katihar","Khagaria","Kishanganj","Lakhisarai", "Madhepura",
+            "Madhubani","Munger", "Muzaffarpur","Nalanda","Nawada","Patna","Purnia","Rohtas","Saharsa","Samastipur","Saran",
+            "Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran","Belagavi","Bengaluru Rural","Bengaluru Urban",
+            "Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi", "Shahdara",
+            "South Delhi","South East Delhi","South West Delhi","West Delhi","North Goa","South Goa","Other State","East Champaran"};
+    static String city;
+    static String state;
+    static String info,info2,info3;
+    static String active,confirmed,deceased,recovered;
+    public int timeinmin =60*5;
+
     static AutoCompleteTextView inputtext;
     static AutoCompleteTextView statesName;
     static TextView information;
     static SharedPreferences rawdata;
+    static JobScheduler scheduler;
 
 
     @Override
@@ -68,7 +59,13 @@ public class MainActivity extends AppCompatActivity {
         inputtext.setThreshold(1);
         information = (TextView)findViewById(R.id.information);
         rawdata= getApplicationContext().getSharedPreferences("com.example.coronaindia",MODE_PRIVATE);
-        schedulejob();
+
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        boolean firstStart = prefs.getBoolean("firstStart", true);
+        if (firstStart) {
+            schedulejob();
+        }
+
 
     }
 
@@ -77,79 +74,31 @@ public class MainActivity extends AppCompatActivity {
         JobInfo info = new JobInfo.Builder(123,componentName)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPersisted(true)
-                .setPeriodic(time).build();
+                .setPeriodic(timeinmin*1000*60).build();
 
-        JobScheduler scheduler =(JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
+        scheduler =(JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
         scheduler.schedule(info);
         int resultCode =scheduler.schedule(info);
         if (resultCode==JobScheduler.RESULT_SUCCESS){
             Log.i("ALERT","Job Scheduled");
+            SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("firstStart", false);
+            editor.apply();
         }else{
             Log.i("ALERT","Job Scheduling Failed");
         }
     }
 
 
-    public static class goodmorningupdatedata extends JobService {
 
-        public boolean jobCanceled = false;
-
-
-        @Override
-        public boolean onStartJob(JobParameters params) {
-            Log.i("ALERT","Job Started");
-            morningCall();
-            return false;
-        }
-
-        @Override
-        public boolean onStopJob(JobParameters params) {
-            Log.i("ALERT","Job Cancelled before completition");
-            jobCanceled = true;
-            return true;
-        }
-    }
     public static void morningCall(){
         Log.i("ALERT","Downloading Started");
         DownloadTask task = new DownloadTask();
         task.execute("https://api.covid19india.org/state_district_wise.json");
     }
-    public static class DownloadTask extends AsyncTask<String ,Void,String>{
 
-        @Override
-        protected String doInBackground(String... urls) {
-            String result="";
-            URL url;
-            HttpURLConnection connection;
 
-            try{
-                url = new URL(urls[0]);
-                connection =(HttpURLConnection) url.openConnection();
-                InputStream in = connection.getInputStream();
-                InputStreamReader reader = new InputStreamReader(in);
-                int data = reader.read();
-                while (data!=-1){
-                    char current= (char) data;
-                    result+=current;
-                    data= reader.read();
-                }
-                return  result;
-
-            }catch(Exception e){
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-
-            storeData(s);
-            Log.i("Information","The downloading process is done");
-
-        }
-    }
     public static void storeData(String morningdata){
         rawdata.edit().clear().apply();
         rawdata.edit().putString("morningData",morningdata).apply();
@@ -161,7 +110,10 @@ public class MainActivity extends AppCompatActivity {
 
         try{
             getDetails();
-        }catch (Exception e){
+        }catch(JSONException a){
+            information.setText("\n\nUpdating Data\nTry after 5 minutes");
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
 
