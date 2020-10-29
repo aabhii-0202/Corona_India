@@ -35,23 +35,24 @@ public class MainActivity extends AppCompatActivity {
             "Himachal Pradesh","Jammu and Kashmir ", "Jharkhand", "Karnataka", "Kerala","Ladakh", "Lakshadweep",
             "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland","Odisha","Puducherry","Punjab",
             "Rajasthan", "Sikkim","Tamil Nadu","Telangana","Tripura", "Uttar Pradesh","Uttarakhand", "Dehradun","West Bengal"};
-    
+
     static String[] cities ={"Araria","Arwal","Aurangabad","Banka","Begusarai", "Bhagalpur","Bhojpur","Buxar","Darbhanga",
             "Gaya","Gopalganj", "Jamui", "Jehanabad","Kaimur","Katihar","Khagaria","Kishanganj","Lakhisarai", "Madhepura",
             "Madhubani","Munger", "Muzaffarpur","Nalanda","Nawada","Patna","Purnia","Rohtas","Saharsa","Samastipur","Saran",
-            "Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran","Belagavi","Bengaluru Rural",
+            "Sheikhpura","Sheohar","Sitamarhi","Siwan","Supaul","Vaishali","West Champaran","Belagavi","Bengaluru Rural","Bengaluru Urban",
             "Central Delhi","East Delhi","New Delhi","North Delhi","North East Delhi","North West Delhi", "Shahdara",
             "South Delhi","South East Delhi","South West Delhi","West Delhi","North Goa","South Goa","Other State","East Champaran"};
     static String city;
     static String state;
     static String info,info2,info3;
     static String active,confirmed,deceased,recovered;
-    public int timeinhrs =20;
+    public int timeinhrs =5;
 
     static AutoCompleteTextView inputtext;
     static AutoCompleteTextView statesName;
     static TextView information;
     static SharedPreferences rawdata;
+    static JobScheduler scheduler;
 
 
     @Override
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPersisted(true)
                 .setPeriodic(timeinhrs*1000*3600).build();
 
-        JobScheduler scheduler =(JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
+        scheduler =(JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
         scheduler.schedule(info);
         int resultCode =scheduler.schedule(info);
         if (resultCode==JobScheduler.RESULT_SUCCESS){
@@ -148,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
 
             storeData(s);
             Log.i("Information","The downloading process is done");
+            scheduler.cancel(123);
+            Log.i("Alert","Job Canceled");
 
         }
     }
